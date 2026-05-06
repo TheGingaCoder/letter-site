@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Geometric Crimson Portal</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    background: #ff3333;
+
+    font-family: 'Plus Jakarta Sans', sans-serif;
+
+}
+
+/* =========================
+   GRAIN
+========================= */
+
+body::before {
+
+    content: "";
+
+    position: fixed;
+    inset: 0;
+
+    opacity: 0.02;
+
+    background-image:
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.24) 1px, transparent 1px),
+        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.18) 1px, transparent 1px);
+
+    background-size: 5px 5px;
+
+    pointer-events: none;
+
+    z-index: 9999;
+
+}
+
+/* =========================
+   SHAPES
+========================= */
+
+.shape-container {
+
+    position: fixed;
+    inset: 0;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    z-index: 0;
+
+}
+
+.geo-shape {
+
+    position: absolute;
+
+    background: white;
+
+    transform-origin: center center;
+
+}
+
+.admin-shapes .geo-shape {
+
+    background: black;
+
+    opacity: 0.05 !important;
+
+}
+
+.shape-1 {
+
+    width: clamp(280px, 34vw, 700px);
+    height: clamp(280px, 34vw, 700px);
+
+    border-radius: 80px;
+
+    opacity: 0.16;
+
+    top: -12%;
+    left: -8%;
+
+    animation: spinSlow 55s linear infinite;
+
+}
+
+.shape-2 {
+
+    width: clamp(220px, 24vw, 500px);
+    height: clamp(220px, 24vw, 500px);
+
+    border-radius: 999px;
+
+    opacity: 0.09;
+
+    top: -8%;
+    right: -6%;
+
+    animation: spinReverse 85s linear infinite;
+
+}
+
+.shape-3 {
+
+    width: clamp(160px, 18vw, 380px);
+    height: clamp(500px, 60vh, 900px);
+
+    border-radius: 999px;
+
+    opacity: 0.06;
+
+    left: -6%;
+    top: 18%;
+
+    animation: floatRotate 70s ease-in-out infinite;
+
+}
+
+.shape-4 {
+
+    width: clamp(400px, 45vw, 900px);
+    height: clamp(120px, 14vh, 260px);
+
+    border-radius: 999px;
+
+    opacity: 0.08;
+
+    bottom: -6%;
+    left: 18%;
+
+    animation: spinSlow 90s linear infinite;
+
+}
+
+.shape-5 {
+
+    width: clamp(180px, 20vw, 420px);
+    height: clamp(180px, 20vw, 420px);
+
+    border-radius: 55px;
+
+    opacity: 0.14;
+
+    bottom: -8%;
+    right: 4%;
+
+    animation: spinReverse 60s linear infinite;
+
+}
+
+@keyframes spinSlow {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+@keyframes spinReverse {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(-360deg);
+    }
+
+}
+
+@keyframes floatRotate {
+
+    0% {
+
+        transform:
+            translateY(0px)
+            rotate(0deg);
+
+    }
+
+    50% {
+
+        transform:
+            translateY(-18px)
+            rotate(3deg);
+
+    }
+
+    100% {
+
+        transform:
+            translateY(0px)
+            rotate(0deg);
+
+    }
+
+}
+
+/* =========================
+   SECRET ADMIN HITBOX
+========================= */
+
+#secret-admin-trigger {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 220px;
+    height: 220px;
+
+    z-index: 100;
+
+}
+
+/* =========================
+   ADMIN ACCESS
+========================= */
+
+.admin-access {
+
+    position: fixed;
+
+    top: 44px;
+    left: 44px;
+
+    z-index: 500;
+
+    width: 0px;
+    height: 62px;
+
+    border-radius: 22px;
+
+    background:
+        rgba(255,255,255,0.12);
+
+    backdrop-filter:
+        blur(18px);
+
+    border:
+        1px solid rgba(255,255,255,0.12);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+
+    opacity: 0;
+
+    transition:
+        width 0.35s cubic-bezier(0.22,1,0.36,1),
+        opacity 0.2s ease;
+
+}
+
+.admin-access.visible {
+
+    width: 220px;
+
+    opacity: 1;
+
+}
+
+.admin-code {
+
+    width: 100%;
+    height: 100%;
+
+    border: none;
+
+    background: transparent;
+
+    color: white;
+
+    font-size: 1.1rem;
+
+    font-family:
+        'JetBrains Mono',
+        monospace;
+
+    padding:
+        0 22px;
+
+}
+
+.admin-code::placeholder {
+
+    color:
+        rgba(255,255,255,0.5);
+
+}
+
+.admin-code:focus {
+
+    outline: none;
+
+}
+
+/* =========================
+   LOGIN
+========================= */
+
+#login-panel {
+
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 10;
+
+    transition:
+        opacity 0.8s ease;
+
+}
+
+.fade-out {
+
+    opacity: 0;
+
+    pointer-events: none;
+
+}
+
+.login-box {
+
+    width: 100%;
+    max-width: 640px;
+
+    padding: 34px;
+
+    border-radius: 36px;
+
+    background:
+        rgba(255,255,255,0.08);
+
+    backdrop-filter:
+        blur(20px);
+
+    border:
+        1px solid rgba(255,255,255,0.12);
+
+}
+
+.portal-input {
+
+    width: 100%;
+
+    padding: 22px;
+
+    border-radius: 20px;
+
+    border:
+        2px solid rgba(255,255,255,0.12);
+
+    background:
+        rgba(255,255,255,0.1);
+
+    color: white;
+
+    text-align: center;
+
+    font-size: 1.45rem;
+
+    font-family: 'JetBrains Mono', monospace;
+
+    font-weight: 700;
+
+    letter-spacing: 0.045em;
+
+    text-transform: uppercase;
+
+}
+
+.portal-input::placeholder {
+
+    color:
+        rgba(255,255,255,0.55);
+
+    font-family:
+        'Plus Jakarta Sans',
+        sans-serif;
+
+    letter-spacing: normal;
+
+    font-size: 1rem;
+
+}
+
+.portal-input:focus {
+
+    outline: none;
+
+}
+
+@keyframes shake {
+
+    0% { transform: translateX(0px); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+    100% { transform: translateX(0px); }
+
+}
+
+.shake {
+
+    animation:
+        shake 0.45s ease;
+
+}
+
+/* =========================
+   LETTER PANEL
+========================= */
+
+#letter-panel {
+
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 32px;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    z-index: 50;
+
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+
+    transform:
+        translateY(18px);
+
+}
+
+#letter-panel.visible {
+
+    opacity: 1;
+
+    pointer-events: auto;
+
+    transform:
+        translateY(0px);
+
+}
+
+.letter-card {
+
+    width: 100%;
+    max-width: 920px;
+
+    background:
+        rgba(255,255,255,0.96);
+
+    border-radius: 38px;
+
+    padding: 64px;
+
+    color: #111;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,0.22);
+
+}
+
+.letter-message {
+
+    font-size: 1.1rem;
+
+    line-height: 1.75;
+
+    white-space: pre-wrap;
+
+}
+
+.letter-message a {
+
+    color: #2563eb;
+
+    font-weight: 700;
+
+}
+
+.letter-bottom {
+
+    margin-top: 40px;
+
+    padding-top: 28px;
+
+    border-top:
+        1px solid rgba(0,0,0,0.08);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+}
+
+.signature {
+
+    font-size: 2rem;
+
+    font-weight: 700;
+
+}
+
+.back-btn {
+
+    border:
+        1px solid #ff3333;
+
+    background: transparent;
+
+    color: #ff3333;
+
+    padding: 14px 26px;
+
+    border-radius: 999px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+/* =========================
+   ADMIN PANEL
+========================= */
+
+#admin-panel {
+
+    position: fixed;
+    inset: 0;
+
+    background:
+        rgba(255,255,255,0.96);
+
+    z-index: 300;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.35s ease;
+
+}
+
+#admin-panel.visible {
+
+    opacity: 1;
+    pointer-events: auto;
+
+}
+
+.admin-layout {
+
+    display: grid;
+
+    grid-template-columns:
+        420px
+        1fr;
+
+    height: 100%;
+
+}
+
+.admin-sidebar {
+
+    padding: 34px;
+
+    overflow-y: auto;
+
+    border-right:
+        1px solid rgba(0,0,0,0.06);
+
+}
+
+.admin-header {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 24px;
+
+}
+
+.admin-title {
+
+    font-size: 2rem;
+    font-weight: 700;
+
+}
+
+.admin-close {
+
+    border: none;
+
+    width: 46px;
+    height: 46px;
+
+    border-radius: 16px;
+
+    background:
+        rgba(0,0,0,0.06);
+
+    cursor: pointer;
+
+}
+
+.create-btn,
+.export-btn,
+.import-btn {
+
+    width: 100%;
+
+    border: none;
+
+    padding: 16px;
+
+    border-radius: 20px;
+
+    font-weight: 700;
+
+    margin-bottom: 12px;
+
+    cursor: pointer;
+
+}
+
+.create-btn {
+
+    background: #111;
+    color: white;
+
+}
+
+.export-btn {
+
+    background: #2563eb;
+    color: white;
+
+}
+
+.import-btn {
+
+    background:
+        rgba(0,0,0,0.06);
+
+}
+
+.letter-list {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+
+}
+
+.letter-item {
+
+    background:
+        rgba(255,255,255,0.78);
+
+    border:
+        1px solid rgba(0,0,0,0.06);
+
+    border-radius: 24px;
+
+    padding: 20px;
+
+    cursor: pointer;
+
+}
+
+.letter-item.active {
+
+    border:
+        2px solid #ff3333;
+
+}
+
+.letter-key {
+
+    font-family:
+        'JetBrains Mono',
+        monospace;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+}
+
+/* =========================
+   EDITOR
+========================= */
+
+.editor-area {
+
+    padding: 42px;
+
+    overflow-y: auto;
+
+}
+
+.editor-card {
+
+    max-width: 920px;
+
+    margin: auto;
+
+    background:
+        rgba(255,255,255,0.78);
+
+    border-radius: 34px;
+
+    padding: 38px;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.08);
+
+}
+
+.editor-label {
+
+    font-size: 0.9rem;
+
+    font-weight: 700;
+
+    margin-bottom: 10px;
+
+    color:
+        rgba(0,0,0,0.45);
+
+}
+
+.editor-input {
+
+    width: 100%;
+
+    margin-bottom: 24px;
+
+    border:
+        1px solid rgba(0,0,0,0.08);
+
+    border-radius: 20px;
+
+    padding: 18px;
+
+    font-family:
+        'JetBrains Mono',
+        monospace;
+
+}
+
+.message-area {
+
+    position: relative;
+
+    min-height: 420px;
+
+}
+
+.editor-textarea {
+
+    width: 100%;
+
+    min-height: 420px;
+
+    border:
+        1px solid rgba(0,0,0,0.08);
+
+    border-radius: 24px;
+
+    padding: 24px;
+
+    resize: vertical;
+
+    font-size: 1rem;
+
+    line-height: 1.7;
+
+}
+
+.editor-textarea.hidden {
+
+    opacity: 0;
+    pointer-events: none;
+
+}
+
+.inline-preview {
+
+    position: absolute;
+
+    inset: 0;
+
+    background: white;
+
+    border:
+        1px solid rgba(0,0,0,0.08);
+
+    border-radius: 24px;
+
+    padding: 24px;
+
+    overflow-y: auto;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.3s ease;
+
+}
+
+.inline-preview.visible {
+
+    opacity: 1;
+    pointer-events: auto;
+
+}
+
+.editor-actions {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-top: 24px;
+
+}
+
+.left-actions,
+.right-actions {
+
+    display: flex;
+
+    gap: 12px;
+
+}
+
+.editor-btn {
+
+    border: none;
+
+    padding: 14px 22px;
+
+    border-radius: 18px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+.save-btn {
+
+    background: #ff3333;
+    color: white;
+
+}
+
+.preview-btn,
+.cancel-btn {
+
+    background:
+        rgba(0,0,0,0.06);
+
+}
+
+.delete-btn {
+
+    background:
+        rgba(255,0,0,0.08);
+
+    color: #c40000;
+
+}
+
+.empty-editor {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 100%;
+
+    color:
+        rgba(0,0,0,0.35);
+
+    font-size: 1.2rem;
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SHAPES -->
+
+<div class="shape-container">
+
+    <div class="geo-shape shape-1"></div>
+    <div class="geo-shape shape-2"></div>
+    <div class="geo-shape shape-3"></div>
+    <div class="geo-shape shape-4"></div>
+    <div class="geo-shape shape-5"></div>
+
+</div>
+
+<!-- SECRET ADMIN HITBOX -->
+
+<div id="secret-admin-trigger"></div>
+
+<!-- ADMIN ACCESS -->
+
+<div
+    class="admin-access"
+    id="admin-access"
+>
+
+    <input
+        type="password"
+        id="admin-code"
+        class="admin-code"
+        placeholder="Admin code..."
+    >
+
+</div>
+
+<!-- LOGIN -->
+
+<div id="login-panel">
+
+    <div class="login-box" id="login-box">
+
+        <input
+            type="text"
+            id="key-input"
+            class="portal-input"
+            placeholder="Enter personalised key..."
+        >
+
+    </div>
+
+</div>
+
+<!-- LETTER -->
+
+<div id="letter-panel">
+
+    <div class="letter-card">
+
+        <div
+            class="letter-message"
+            id="letter-message"
+        ></div>
+
+        <div class="letter-bottom">
+
+            <div>
+
+                <div style="
+                    font-size:1.3rem;
+                    margin-bottom:8px;
+                ">
+                    Thanks for being amazing!
+                </div>
+
+                <div class="signature">
+                    Luke W
+                </div>
+
+            </div>
+
+            <button
+                class="back-btn"
+                id="back-btn"
+            >
+                Back
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ADMIN PANEL -->
+
+<div id="admin-panel">
+
+    <div class="shape-container admin-shapes">
+
+        <div class="geo-shape shape-1"></div>
+        <div class="geo-shape shape-2"></div>
+        <div class="geo-shape shape-3"></div>
+        <div class="geo-shape shape-4"></div>
+        <div class="geo-shape shape-5"></div>
+
+    </div>
+
+    <div class="admin-layout">
+
+        <!-- SIDEBAR -->
+
+        <div class="admin-sidebar">
+
+            <div class="admin-header">
+
+                <div class="admin-title">
+                    Letters
+                </div>
+
+                <button
+                    class="admin-close"
+                    id="admin-close"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+            <button
+                class="create-btn"
+                id="create-btn"
+            >
+                Create Letter
+            </button>
+
+            <button
+                class="export-btn"
+                id="export-btn"
+            >
+                Export JSON
+            </button>
+
+            <button
+                class="import-btn"
+                id="import-btn"
+            >
+                Import JSON
+            </button>
+
+            <input
+                type="file"
+                id="import-file"
+                accept=".json"
+                hidden
+            >
+
+            <div
+                class="letter-list"
+                id="letter-list"
+            ></div>
+
+        </div>
+
+        <!-- EDITOR -->
+
+        <div class="editor-area">
+
+            <div
+                class="empty-editor"
+                id="empty-editor"
+            >
+                Select a letter to begin editing
+            </div>
+
+            <div
+                class="editor-card"
+                id="editor-card"
+                style="display:none;"
+            >
+
+                <div class="editor-label">
+                    Letter Key
+                </div>
+
+                <input
+                    type="text"
+                    id="editor-key"
+                    class="editor-input"
+                >
+
+                <div class="editor-label">
+                    Personalised Message
+                </div>
+
+                <div class="message-area">
+
+                    <textarea
+                        id="editor-message"
+                        class="editor-textarea"
+                    ></textarea>
+
+                    <div
+                        class="inline-preview"
+                        id="inline-preview"
+                    >
+
+                        <div
+                            class="letter-message"
+                            id="inline-preview-message"
+                        ></div>
+
+                        <div class="letter-bottom">
+
+                            <div>
+
+                                <div style="
+                                    font-size:1.3rem;
+                                    margin-bottom:8px;
+                                ">
+                                    Thanks for being amazing!
+                                </div>
+
+                                <div class="signature">
+                                    Luke W
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="editor-actions">
+
+                    <div class="left-actions">
+
+                        <button
+                            class="editor-btn save-btn"
+                            id="save-btn"
+                        >
+                            Save
+                        </button>
+
+                        <button
+                            class="editor-btn preview-btn"
+                            id="preview-btn"
+                        >
+                            Preview
+                        </button>
+
+                    </div>
+
+                    <div class="right-actions">
+
+                        <button
+                            class="editor-btn cancel-btn"
+                            id="cancel-btn"
+                            style="display:none;"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            class="editor-btn delete-btn"
+                            id="delete-btn"
+                        >
+                            Delete
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* =========================
+   CONFIG
+========================= */
+
+const ADMIN_CODE = "4826";
+
+/* =========================
+   DATA
+========================= */
+
+let letters = {};
+
+async function loadLetters() {
+
+    try {
+
+        const response =
+            await fetch('letters.json');
+
+        if (!response.ok)
+            throw new Error();
+
+        letters =
+            await response.json();
+
+    } catch {
+
+        const local =
+            localStorage.getItem(
+                'teacherLetters'
+            );
+
+        if (local) {
+
+            letters =
+                JSON.parse(local);
+
+        } else {
+
+            letters = {
+
+                "therealginger": {
+
+                    message:
+`Heya.
+
+First of all, i'm glad you figured out how to access this page!
+
+Please hear me out before making any decisions
+
+I understand that you might not be allowed to have contact with past students, however if you are able to then here's my email
+
+gingacoder@gmail.com
+
+I hope you can keep contact with me, and if not then i'll find a different way`
+
+                }
+
+            };
+
+        }
+
+    }
+
+}
+
+loadLetters();
+
+/* =========================
+   STATE
+========================= */
+
+let currentKey = null;
+let previewMode = false;
+let creatingNew = false;
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const secretTrigger =
+    document.getElementById(
+        'secret-admin-trigger'
+    );
+
+const adminAccess =
+    document.getElementById(
+        'admin-access'
+    );
+
+const adminCode =
+    document.getElementById(
+        'admin-code'
+    );
+
+const adminPanel =
+    document.getElementById(
+        'admin-panel'
+    );
+
+const adminClose =
+    document.getElementById(
+        'admin-close'
+    );
+
+const keyInput =
+    document.getElementById(
+        'key-input'
+    );
+
+const loginBox =
+    document.getElementById(
+        'login-box'
+    );
+
+const loginPanel =
+    document.getElementById(
+        'login-panel'
+    );
+
+const letterPanel =
+    document.getElementById(
+        'letter-panel'
+    );
+
+const letterMessage =
+    document.getElementById(
+        'letter-message'
+    );
+
+const backBtn =
+    document.getElementById(
+        'back-btn'
+    );
+
+const letterList =
+    document.getElementById(
+        'letter-list'
+    );
+
+const createBtn =
+    document.getElementById(
+        'create-btn'
+    );
+
+const exportBtn =
+    document.getElementById(
+        'export-btn'
+    );
+
+const importBtn =
+    document.getElementById(
+        'import-btn'
+    );
+
+const importFile =
+    document.getElementById(
+        'import-file'
+    );
+
+const editorCard =
+    document.getElementById(
+        'editor-card'
+    );
+
+const emptyEditor =
+    document.getElementById(
+        'empty-editor'
+    );
+
+const editorKey =
+    document.getElementById(
+        'editor-key'
+    );
+
+const editorMessage =
+    document.getElementById(
+        'editor-message'
+    );
+
+const saveBtn =
+    document.getElementById(
+        'save-btn'
+    );
+
+const previewBtn =
+    document.getElementById(
+        'preview-btn'
+    );
+
+const cancelBtn =
+    document.getElementById(
+        'cancel-btn'
+    );
+
+const deleteBtn =
+    document.getElementById(
+        'delete-btn'
+    );
+
+const inlinePreview =
+    document.getElementById(
+        'inline-preview'
+    );
+
+const inlinePreviewMessage =
+    document.getElementById(
+        'inline-preview-message'
+    );
+
+/* =========================
+   SAVE LOCAL
+========================= */
+
+function saveLocal() {
+
+    localStorage.setItem(
+        'teacherLetters',
+        JSON.stringify(letters)
+    );
+
+}
+
+/* =========================
+   FORMAT MESSAGE
+========================= */
+
+function formatMessage(text) {
+
+    return text.replace(
+        /gingacoder@gmail\.com/g,
+        '<a href="mailto:gingacoder@gmail.com">gingacoder@gmail.com</a>'
+    );
+
+}
+
+/* =========================
+   SECRET ADMIN ACCESS
+========================= */
+
+secretTrigger.onclick = () => {
+
+    adminAccess.classList.add(
+        'visible'
+    );
+
+    setTimeout(() => {
+
+        adminCode.focus();
+
+    }, 180);
+
+};
+
+adminCode.addEventListener(
+    'keydown',
+    (e) => {
+
+        if (e.key === 'Enter') {
+
+            if (
+                adminCode.value === ADMIN_CODE
+            ) {
+
+                adminPanel.classList.add(
+                    'visible'
+                );
+
+                adminAccess.classList.remove(
+                    'visible'
+                );
+
+                adminCode.value = '';
+
+                renderLetters();
+
+            } else {
+
+                adminAccess.classList.remove(
+                    'visible'
+                );
+
+                adminCode.value = '';
+
+            }
+
+        }
+
+    }
+);
+
+/* =========================
+   LOGIN INPUT FORMAT
+========================= */
+
+keyInput.addEventListener(
+    'input',
+    () => {
+
+        let raw =
+            keyInput.value
+            .replace(/\s/g, '')
+            .toUpperCase();
+
+        keyInput.dataset.raw = raw;
+
+        keyInput.value =
+            raw.split('').join(' ');
+
+    }
+);
+
+/* =========================
+   LOGIN
+========================= */
+
+keyInput.addEventListener(
+    'keydown',
+    (e) => {
+
+        if (e.key === 'Enter') {
+
+            const raw =
+                (
+                    keyInput.dataset.raw
+                    || ''
+                ).toLowerCase();
+
+            if (letters[raw]) {
+
+                letterMessage.innerHTML =
+                    formatMessage(
+                        letters[raw].message
+                    );
+
+                loginPanel.classList.add(
+                    'fade-out'
+                );
+
+                setTimeout(() => {
+
+                    loginPanel.style.display =
+                        'none';
+
+                    letterPanel.classList.add(
+                        'visible'
+                    );
+
+                }, 700);
+
+            } else {
+
+                loginBox.classList.remove(
+                    'shake'
+                );
+
+                void loginBox.offsetWidth;
+
+                loginBox.classList.add(
+                    'shake'
+                );
+
+            }
+
+        }
+
+    }
+);
+
+/* =========================
+   BACK
+========================= */
+
+backBtn.onclick = () => {
+
+    letterPanel.classList.remove(
+        'visible'
+    );
+
+    setTimeout(() => {
+
+        loginPanel.style.display =
+            'flex';
+
+        loginPanel.classList.remove(
+            'fade-out'
+        );
+
+        keyInput.value = '';
+        keyInput.dataset.raw = '';
+
+    }, 500);
+
+};
+
+/* =========================
+   CLOSE ADMIN
+========================= */
+
+adminClose.onclick = () => {
+
+    adminPanel.classList.remove(
+        'visible'
+    );
+
+};
+
+/* =========================
+   RENDER LETTERS
+========================= */
+
+function renderLetters() {
+
+    letterList.innerHTML = '';
+
+    Object.keys(letters).forEach(
+        key => {
+
+            const item =
+                document.createElement(
+                    'div'
+                );
+
+            item.className =
+                'letter-item';
+
+            if (
+                currentKey === key
+            ) {
+
+                item.classList.add(
+                    'active'
+                );
+
+            }
+
+            item.innerHTML = `
+
+                <div class="letter-key">
+                    ${key.toUpperCase()}
+                </div>
+
+            `;
+
+            item.onclick = () => {
+
+                openEditor(key);
+
+            };
+
+            letterList.appendChild(item);
+
+        }
+    );
+
+}
+
+/* =========================
+   PREVIEW RESET
+========================= */
+
+function resetPreview() {
+
+    previewMode = false;
+
+    inlinePreview.classList.remove(
+        'visible'
+    );
+
+    editorMessage.classList.remove(
+        'hidden'
+    );
+
+    previewBtn.innerText =
+        'Preview';
+
+}
+
+/* =========================
+   OPEN EDITOR
+========================= */
+
+function openEditor(key) {
+
+    creatingNew = false;
+
+    cancelBtn.style.display =
+        'none';
+
+    currentKey = key;
+
+    renderLetters();
+
+    emptyEditor.style.display =
+        'none';
+
+    editorCard.style.display =
+        'block';
+
+    editorKey.value = key;
+
+    editorMessage.value =
+        letters[key].message;
+
+    resetPreview();
+
+}
+
+/* =========================
+   CREATE
+========================= */
+
+createBtn.onclick = () => {
+
+    creatingNew = true;
+
+    cancelBtn.style.display =
+        'inline-flex';
+
+    currentKey = null;
+
+    emptyEditor.style.display =
+        'none';
+
+    editorCard.style.display =
+        'block';
+
+    editorKey.value = '';
+
+    editorMessage.value = '';
+
+    resetPreview();
+
+};
+
+/* =========================
+   SAVE
+========================= */
+
+saveBtn.onclick = () => {
+
+    const newKey =
+        editorKey.value
+        .trim()
+        .toLowerCase()
+        .replace(/\s/g, '');
+
+    if (!newKey) return;
+
+    letters[newKey] = {
+
+        message:
+            editorMessage.value
+
+    };
+
+    currentKey = newKey;
+
+    creatingNew = false;
+
+    cancelBtn.style.display =
+        'none';
+
+    saveLocal();
+
+    renderLetters();
+
+};
+
+/* =========================
+   DELETE
+========================= */
+
+deleteBtn.onclick = () => {
+
+    if (!currentKey) return;
+
+    const confirmed =
+        confirm(
+            `Delete "${currentKey}" permanently?`
+        );
+
+    if (!confirmed) return;
+
+    delete letters[currentKey];
+
+    saveLocal();
+
+    currentKey = null;
+
+    renderLetters();
+
+    editorCard.style.display =
+        'none';
+
+    emptyEditor.style.display =
+        'flex';
+
+};
+
+/* =========================
+   PREVIEW
+========================= */
+
+previewBtn.onclick = () => {
+
+    previewMode = !previewMode;
+
+    if (previewMode) {
+
+        editorMessage.classList.add(
+            'hidden'
+        );
+
+        inlinePreview.classList.add(
+            'visible'
+        );
+
+        inlinePreviewMessage.innerHTML =
+            formatMessage(
+                editorMessage.value
+            );
+
+        previewBtn.innerText =
+            'Edit';
+
+    } else {
+
+        resetPreview();
+
+    }
+
+};
+
+/* =========================
+   CANCEL
+========================= */
+
+cancelBtn.onclick = () => {
+
+    if (!creatingNew) return;
+
+    editorCard.style.display =
+        'none';
+
+    emptyEditor.style.display =
+        'flex';
+
+    editorKey.value = '';
+
+    editorMessage.value = '';
+
+    creatingNew = false;
+
+    cancelBtn.style.display =
+        'none';
+
+};
+
+/* =========================
+   EXPORT
+========================= */
+
+exportBtn.onclick = async () => {
+
+    try {
+
+        const jsonString =
+            JSON.stringify(
+                letters,
+                null,
+                2
+            );
+
+        const blob =
+            new Blob(
+                [jsonString],
+                {
+                    type:
+                        'application/json'
+                }
+            );
+
+        const url =
+            window.URL.createObjectURL(
+                blob
+            );
+
+        const link =
+            document.createElement('a');
+
+        link.href = url;
+
+        link.download =
+            'letters.json';
+
+        document.body.appendChild(
+            link
+        );
+
+        link.click();
+
+        setTimeout(() => {
+
+            document.body.removeChild(
+                link
+            );
+
+            window.URL.revokeObjectURL(
+                url
+            );
+
+        }, 100);
+
+    } catch (err) {
+
+        alert(
+            'Export failed.'
+        );
+
+        console.error(err);
+
+    }
+
+};
+
+/* =========================
+   IMPORT
+========================= */
+
+importBtn.onclick = () => {
+
+    importFile.click();
+
+};
+
+importFile.addEventListener(
+    'change',
+    (e) => {
+
+        const file =
+            e.target.files[0];
+
+        if (!file) return;
+
+        const reader =
+            new FileReader();
+
+        reader.onload =
+            (event) => {
+
+                try {
+
+                    letters =
+                        JSON.parse(
+                            event.target.result
+                        );
+
+                    saveLocal();
+
+                    renderLetters();
+
+                    alert(
+                        'Letters imported successfully.'
+                    );
+
+                } catch {
+
+                    alert(
+                        'Invalid JSON file.'
+                    );
+
+                }
+
+            };
+
+        reader.readAsText(file);
+
+    }
+);
+
+</script>
+
+</body>
+</html>
