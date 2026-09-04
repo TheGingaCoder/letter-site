@@ -12,6 +12,9 @@ const dateChip = document.getElementById("dateChip");
 const lukeScore = document.getElementById("lukeScore");
 const tylerScore = document.getElementById("tylerScore");
 const drawScore = document.getElementById("drawScore");
+const sideLukeScore = document.getElementById("sideLukeScore");
+const sideTylerScore = document.getElementById("sideTylerScore");
+const sideDrawScore = document.getElementById("sideDrawScore");
 const lockedMessage = document.getElementById("lockedMessage");
 const leadLine = document.getElementById("leadLine");
 const historyList = document.getElementById("historyList");
@@ -134,6 +137,9 @@ function renderScoreboard() {
   lukeScore.textContent = state.scores.luke;
   tylerScore.textContent = state.scores.tyler;
   drawScore.textContent = state.scores.draw;
+  sideLukeScore.textContent = state.scores.luke;
+  sideTylerScore.textContent = state.scores.tyler;
+  sideDrawScore.textContent = state.scores.draw;
 
   const difference = Math.abs(state.scores.luke - state.scores.tyler);
   if (state.scores.luke === state.scores.tyler) {
