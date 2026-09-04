@@ -1,224 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Luke's lighting and technical theatre portfolio.">
-  <meta name="theme-color" content="#05070a">
-  <title>Luke | Lighting Technician</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0d12" />
+  <title>Luke vs Tyler — Daily RPS</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="site-noise" aria-hidden="true"></div>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">DAILY ROCK • PAPER • SCISSORS</p>
+        <h1>Luke <span>vs</span> Tyler</h1>
+      </div>
+      <div class="date-chip" id="dateChip">Today</div>
+    </header>
 
-  <header class="site-header" id="top">
-    <a class="brand" href="#home" aria-label="Go to home">
-      <span class="brand-name">LUKE</span>
-      <span class="brand-role">LIGHTING &amp; SHOW TECHNOLOGY</span>
-    </a>
+    <section id="entryView" class="panel entry-panel" hidden>
+      <div class="status-dot"><span></span> Today is open</div>
+      <h2>Who won today?</h2>
+      <p class="muted">Choose one result. Once submitted, today is locked.</p>
 
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation">
-      <span></span><span></span>
-    </button>
+      <div class="result-grid">
+        <button class="result-card luke" data-result="luke" type="button">
+          <span class="result-icon">L</span>
+          <span class="result-name">Luke Won</span>
+          <span class="result-sub">+1 Luke</span>
+        </button>
 
-    <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
-      <a href="#home" class="active">Home</a>
-      <a href="#projects">Projects</a>
-      <a href="#skills">Skills</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
+        <button class="result-card draw" data-result="draw" type="button">
+          <span class="result-icon">—</span>
+          <span class="result-name">Draw</span>
+          <span class="result-sub">+1 Draw</span>
+        </button>
 
-  <main>
-    <section class="hero" id="home">
-      <div class="hero-beams" aria-hidden="true">
-        <span class="beam beam-one"></span>
-        <span class="beam beam-two"></span>
-        <span class="beam beam-three"></span>
-        <span class="beam beam-four"></span>
+        <button class="result-card tyler" data-result="tyler" type="button">
+          <span class="result-icon">T</span>
+          <span class="result-name">Tyler Won</span>
+          <span class="result-sub">+1 Tyler</span>
+        </button>
       </div>
 
-      <div class="hero-grid container">
-        <div class="hero-copy reveal">
-          <p class="eyebrow">DESIGN. PROGRAM. ILLUMINATE.</p>
-          <h1>Lighting Technician <span>&amp; Creative Technologist</span></h1>
-          <p class="hero-intro">A portfolio for theatre, live events, programming, visualisation and experimental show technology.</p>
-          <div class="hero-actions">
-            <a class="button button-primary" href="#projects">View projects <span aria-hidden="true">↗</span></a>
-            <a class="button button-secondary" href="#about">About me</a>
-          </div>
-        </div>
-
-        <div class="hero-rig reveal" aria-label="Abstract lighting rig illustration">
-          <div class="rig-line rig-line-one"></div>
-          <div class="rig-line rig-line-two"></div>
-          <div class="fixture fixture-one"><span></span></div>
-          <div class="fixture fixture-two"><span></span></div>
-          <div class="fixture fixture-three"><span></span></div>
-          <div class="fixture fixture-four"><span></span></div>
-          <div class="rig-label">LX / 001</div>
-        </div>
-      </div>
-
-      <a class="scroll-cue" href="#projects" aria-label="Scroll to projects">
-        <span>SCROLL</span>
-        <i></i>
-      </a>
+      <button id="skipButton" class="skip-button" type="button">Skip Day</button>
     </section>
 
-    <section class="section projects-section" id="projects">
-      <div class="container">
-        <div class="section-heading reveal">
-          <div>
-            <p class="eyebrow">SELECTED WORK</p>
-            <h2>Featured projects</h2>
-          </div>
-          <p class="section-summary">Replace these cards with productions, programming work, visualisation projects, hardware builds or anything else worth showing.</p>
-        </div>
-
-        <div class="project-grid">
-          <article class="project-card reveal">
-            <div class="project-visual stage-visual">
-              <span class="project-index">01</span>
-              <span class="project-tag">THEATRE</span>
-              <div class="stage-moon"></div>
-              <div class="stage-floor"></div>
-            </div>
-            <div class="project-copy">
-              <div>
-                <h3>Production title</h3>
-                <p>Lighting Designer</p>
-              </div>
-              <span>2026</span>
-            </div>
-          </article>
-
-          <article class="project-card reveal">
-            <div class="project-visual live-visual">
-              <span class="project-index">02</span>
-              <span class="project-tag">LIVE EVENT</span>
-              <div class="live-ring"></div>
-              <div class="mini-beam mb-one"></div>
-              <div class="mini-beam mb-two"></div>
-              <div class="mini-beam mb-three"></div>
-            </div>
-            <div class="project-copy">
-              <div>
-                <h3>Event title</h3>
-                <p>Lighting Programmer</p>
-              </div>
-              <span>2026</span>
-            </div>
-          </article>
-
-          <article class="project-card reveal">
-            <div class="project-visual console-visual">
-              <span class="project-index">03</span>
-              <span class="project-tag">PROGRAMMING</span>
-              <div class="console-screen">
-                <i></i><i></i><i></i><i></i><i></i><i></i>
-              </div>
-              <div class="console-desk"></div>
-            </div>
-            <div class="project-copy">
-              <div>
-                <h3>Programming project</h3>
-                <p>ETC Eos / Show Control</p>
-              </div>
-              <span>2026</span>
-            </div>
-          </article>
-
-          <article class="project-card reveal">
-            <div class="project-visual visualiser-visual">
-              <span class="project-index">04</span>
-              <span class="project-tag">VISUALISATION</span>
-              <div class="grid-floor"></div>
-              <div class="wire-stage"></div>
-            </div>
-            <div class="project-copy">
-              <div>
-                <h3>Previsualisation</h3>
-                <p>Capture / Augment3D</p>
-              </div>
-              <span>2026</span>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section toolkit-section" id="skills">
-      <div class="container toolkit-grid">
-        <div class="toolkit-copy reveal">
-          <p class="eyebrow">TOOLKIT</p>
-          <h2>Built around the tools used to make shows happen.</h2>
-          <p>This section is deliberately modular: add, remove or rename skills as your portfolio develops.</p>
-        </div>
-
-        <div class="skill-grid reveal">
-          <div class="skill"><span>EOS</span><small>Lighting control</small></div>
-          <div class="skill"><span>A3D</span><small>Augment3D</small></div>
-          <div class="skill"><span>CAP</span><small>Capture</small></div>
-          <div class="skill"><span>DMX</span><small>Control protocol</small></div>
-          <div class="skill"><span>sACN</span><small>Lighting network</small></div>
-          <div class="skill"><span>OSC</span><small>Show control</small></div>
-          <div class="skill"><span>UNI</span><small>Unity</small></div>
-          <div class="skill"><span>HW</span><small>Hardware projects</small></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section about-section" id="about">
-      <div class="container about-grid">
-        <div class="about-portrait reveal" aria-hidden="true">
-          <div class="portrait-glow"></div>
-          <div class="portrait-mark">L</div>
-          <span>PLACEHOLDER / PORTRAIT</span>
-        </div>
-
-        <div class="about-copy reveal">
-          <p class="eyebrow">ABOUT</p>
-          <h2>Technical thinking with a creative purpose.</h2>
-          <p class="large-copy">Use this section for a short introduction: who you are, what you enjoy doing, and the kind of work you want to make.</p>
-          <p>The design keeps the focus on your work rather than turning the page into a CV. Detailed credits, qualifications and downloadable documents can be added later if useful.</p>
-          <div class="about-facts">
-            <div><span>BASED</span><strong>United Kingdom</strong></div>
-            <div><span>FOCUS</span><strong>Lighting / Technical Theatre</strong></div>
-            <div><span>STATUS</span><strong>Open to new projects</strong></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section contact-section" id="contact">
-      <div class="container contact-grid reveal">
+    <section id="lockedView" class="panel locked-panel" hidden>
+      <div class="lock-row">
         <div>
-          <p class="eyebrow">CONTACT</p>
-          <h2>Have a project in mind?</h2>
+          <p class="eyebrow">TODAY IS LOCKED</p>
+          <h2 id="lockedMessage">Result recorded</h2>
         </div>
-        <div class="contact-copy">
-          <p>Replace this with the contact method you actually want public. You can also link to GitHub, LinkedIn or a downloadable CV here.</p>
-          <a class="button button-primary" href="mailto:your@email.com">your@email.com <span aria-hidden="true">↗</span></a>
-        </div>
+        <div class="lock-badge">✓</div>
       </div>
+
+      <div class="scoreboard" aria-label="Scoreboard">
+        <article class="score-card luke-score">
+          <span class="score-label">LUKE</span>
+          <strong id="lukeScore">1</strong>
+          <span class="score-caption">wins</span>
+        </article>
+
+        <article class="score-card draw-score">
+          <span class="score-label">DRAW</span>
+          <strong id="drawScore">0</strong>
+          <span class="score-caption">games</span>
+        </article>
+
+        <article class="score-card tyler-score">
+          <span class="score-label">TYLER</span>
+          <strong id="tylerScore">1</strong>
+          <span class="score-caption">wins</span>
+        </article>
+      </div>
+
+      <div class="lead-line" id="leadLine">The score is tied.</div>
     </section>
+
+    <section class="panel history-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">THE YEAR SO FAR</p>
+          <h2>Game history</h2>
+        </div>
+        <div class="played-count"><strong id="playedCount">2</strong><span>games logged</span></div>
+      </div>
+
+      <div class="progress-track" aria-hidden="true"><div id="yearProgress" class="progress-fill"></div></div>
+      <p class="progress-text" id="progressText">Tracking your year one day at a time.</p>
+
+      <div id="historyList" class="history-list"></div>
+    </section>
+
+    <footer>One entry per calendar day • Europe/London</footer>
   </main>
 
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <a href="#top" class="footer-brand">LUKE / LX</a>
-      <p>Portfolio boilerplate — replace placeholder content with your own work.</p>
-      <div class="footer-links">
-        <a href="https://github.com/TheGingaCoder" target="_blank" rel="noreferrer">GitHub</a>
-        <a href="#home">Back to top ↑</a>
+  <div id="confirmModal" class="modal-backdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <p class="eyebrow">CONFIRM TODAY</p>
+      <h2 id="confirmTitle">Record result?</h2>
+      <p id="confirmText" class="muted">This cannot be changed again today.</p>
+      <div class="modal-actions">
+        <button id="cancelConfirm" class="secondary-button" type="button">Cancel</button>
+        <button id="acceptConfirm" class="primary-button" type="button">Confirm</button>
       </div>
     </div>
-  </footer>
+  </div>
 
   <script src="script.js"></script>
 </body>
