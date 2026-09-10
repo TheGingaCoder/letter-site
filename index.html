@@ -3,115 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#202124" />
+  <meta name="theme-color" content="#111217" />
   <title>Luke vs Tyler — Daily RPS</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app-window">
-    <header class="app-header">
-      <div class="window-titlebar">
-        <div class="brand-mark">RPS</div>
-        <div class="window-title">Luke vs Tyler</div>
-        <div class="window-date" id="dateChip">Today</div>
+  <div class="ambient ambient-red"></div>
+  <div class="ambient ambient-blue"></div>
+
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">DAILY RPS</p>
+        <h1>Luke <span>vs</span> Tyler</h1>
       </div>
-      <nav class="menu-strip" aria-label="Tracker menu">
-        <span>Game</span><span>History</span><span>Year</span><span>Help</span>
-      </nav>
-      <div class="toolbar">
-        <div class="toolbar-group">
-          <div class="tool-icon active">●</div>
-          <div class="tool-label">Daily Match</div>
-        </div>
-        <div class="toolbar-divider"></div>
-        <div class="toolbar-status"><span class="status-light"></span><span>Europe/London</span></div>
+      <div class="top-actions">
+        <span id="dateChip" class="date-chip">Today</span>
+        <button id="editScoreButton" class="ghost-button" type="button">Edit score</button>
       </div>
     </header>
 
-    <main class="workspace">
-      <aside class="sidebar">
-        <div class="sidebar-heading">SCOREBOARD</div>
-        <div class="mini-score luke-mini"><span>Luke</span><strong id="sideLukeScore">1</strong></div>
-        <div class="mini-score draw-mini"><span>Draws</span><strong id="sideDrawScore">0</strong></div>
-        <div class="mini-score tyler-mini"><span>Tyler</span><strong id="sideTylerScore">1</strong></div>
-        <div class="sidebar-divider"></div>
-        <div class="sidebar-caption">Daily tracking</div>
-        <div class="sidebar-note">One result or skip per calendar day.</div>
-      </aside>
+    <section class="score-strip" aria-label="Scoreboard">
+      <article class="score-block luke-score">
+        <span>Luke</span>
+        <strong id="lukeScore">1</strong>
+      </article>
+      <article class="score-block draw-score">
+        <span>Draw</span>
+        <strong id="drawScore">0</strong>
+      </article>
+      <article class="score-block tyler-score">
+        <span>Tyler</span>
+        <strong id="tylerScore">1</strong>
+      </article>
+    </section>
 
-      <section class="main-stage">
-        <section id="entryView" class="panel match-panel" hidden>
-          <div class="panel-header">
-            <div>
-              <span class="panel-kicker">TODAY'S MATCH</span>
-              <h1>Who won?</h1>
-            </div>
-            <div class="open-pill"><span></span> Open</div>
-          </div>
-          <p class="muted">Choose one result. Once confirmed, today is locked.</p>
+    <p class="lead-line" id="leadLine">Luke and Tyler are tied.</p>
 
-          <div class="result-grid">
-            <button class="result-card luke" data-result="luke" type="button">
-              <span class="track-accent"></span>
-              <span class="result-icon">L</span>
-              <span class="result-copy"><strong>Luke Won</strong><small>Record +1 win for Luke</small></span>
-            </button>
-            <button class="result-card draw" data-result="draw" type="button">
-              <span class="track-accent"></span>
-              <span class="result-icon">—</span>
-              <span class="result-copy"><strong>Draw</strong><small>Record +1 draw</small></span>
-            </button>
-            <button class="result-card tyler" data-result="tyler" type="button">
-              <span class="track-accent"></span>
-              <span class="result-icon">T</span>
-              <span class="result-copy"><strong>Tyler Won</strong><small>Record +1 win for Tyler</small></span>
-            </button>
-          </div>
+    <section id="entryView" class="daily-card" hidden>
+      <div class="daily-heading">
+        <div>
+          <p class="eyebrow">TODAY</p>
+          <h2>Who won?</h2>
+        </div>
+        <span class="open-status"><i></i> Open</span>
+      </div>
 
-          <button id="skipButton" class="skip-button" type="button">Skip Day</button>
-        </section>
+      <div class="result-grid">
+        <button class="result-button luke" data-result="luke" type="button">
+          <span class="result-letter">L</span>
+          <span><strong>Luke Won</strong><small>+1 Luke</small></span>
+        </button>
+        <button class="result-button draw" data-result="draw" type="button">
+          <span class="result-letter">—</span>
+          <span><strong>Draw</strong><small>+1 Draw</small></span>
+        </button>
+        <button class="result-button tyler" data-result="tyler" type="button">
+          <span class="result-letter">T</span>
+          <span><strong>Tyler Won</strong><small>+1 Tyler</small></span>
+        </button>
+      </div>
 
-        <section id="lockedView" class="panel locked-panel" hidden>
-          <div class="panel-header">
-            <div>
-              <span class="panel-kicker">TODAY'S MATCH</span>
-              <h1 id="lockedMessage">Result recorded</h1>
-            </div>
-            <div class="locked-pill">✓ Locked</div>
-          </div>
+      <button id="skipButton" class="skip-button" type="button">Skip Day</button>
+    </section>
 
-          <div class="scoreboard" aria-label="Scoreboard">
-            <article class="score-card luke-score"><span class="score-label">LUKE</span><strong id="lukeScore">1</strong><span class="score-caption">wins</span></article>
-            <article class="score-card draw-score"><span class="score-label">DRAW</span><strong id="drawScore">0</strong><span class="score-caption">games</span></article>
-            <article class="score-card tyler-score"><span class="score-label">TYLER</span><strong id="tylerScore">1</strong><span class="score-caption">wins</span></article>
-          </div>
-          <div class="lead-line" id="leadLine">The score is tied.</div>
-        </section>
+    <section id="lockedView" class="daily-card locked-card" hidden>
+      <p class="eyebrow">TODAY</p>
+      <h2 id="lockedMessage">Result recorded</h2>
+      <div class="locked-status">✓ Locked until tomorrow</div>
+    </section>
 
-        <section class="panel history-panel">
-          <div class="panel-header compact">
-            <div><span class="panel-kicker">YEAR OVERVIEW</span><h2>Game history</h2></div>
-            <div class="played-count"><strong id="playedCount">2</strong><span>games logged</span></div>
-          </div>
-          <div class="timeline-ruler"><span>JAN</span><span>APR</span><span>JUL</span><span>OCT</span><span>DEC</span></div>
-          <div class="progress-track" aria-hidden="true"><div id="yearProgress" class="progress-fill"></div></div>
-          <p class="progress-text" id="progressText">Tracking your year one day at a time.</p>
-          <div id="historyList" class="history-list"></div>
-        </section>
-      </section>
-    </main>
+    <section class="history-section">
+      <div class="history-heading">
+        <div>
+          <p class="eyebrow">THIS YEAR</p>
+          <h2>History</h2>
+        </div>
+        <div class="played-count"><strong id="playedCount">2</strong><span>games</span></div>
+      </div>
 
-    <footer class="statusbar"><span>Daily RPS Tracker</span><span>1 entry per day</span></footer>
-  </div>
+      <div class="progress-track"><div id="yearProgress" class="progress-fill"></div></div>
+      <p id="progressText" class="progress-text">Tracking your year one day at a time.</p>
+      <div id="historyList" class="history-list"></div>
+    </section>
+  </main>
 
   <div id="confirmModal" class="modal-backdrop" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
-      <span class="panel-kicker">CONFIRM TODAY</span>
+      <p class="eyebrow">CONFIRM TODAY</p>
       <h2 id="confirmTitle">Record result?</h2>
       <p id="confirmText" class="muted">This cannot be changed again today.</p>
       <div class="modal-actions">
         <button id="cancelConfirm" class="secondary-button" type="button">Cancel</button>
         <button id="acceptConfirm" class="primary-button" type="button">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="scoreModal" class="modal-backdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="scoreModalTitle">
+      <p class="eyebrow">MANUAL OVERRIDE</p>
+      <h2 id="scoreModalTitle">Edit score</h2>
+      <p class="muted">Use this to restore the totals if this browser ever loses its saved data.</p>
+
+      <div class="score-inputs">
+        <label class="score-input luke-input">Luke<input id="editLuke" type="number" min="0" step="1" inputmode="numeric" /></label>
+        <label class="score-input draw-input">Draw<input id="editDraw" type="number" min="0" step="1" inputmode="numeric" /></label>
+        <label class="score-input tyler-input">Tyler<input id="editTyler" type="number" min="0" step="1" inputmode="numeric" /></label>
+      </div>
+
+      <div class="modal-actions">
+        <button id="cancelScoreEdit" class="secondary-button" type="button">Cancel</button>
+        <button id="saveScoreEdit" class="primary-button" type="button">Save score</button>
       </div>
     </div>
   </div>
