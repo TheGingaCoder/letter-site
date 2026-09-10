@@ -12,9 +12,6 @@ const dateChip = document.getElementById("dateChip");
 const lukeScore = document.getElementById("lukeScore");
 const tylerScore = document.getElementById("tylerScore");
 const drawScore = document.getElementById("drawScore");
-const sideLukeScore = document.getElementById("sideLukeScore");
-const sideTylerScore = document.getElementById("sideTylerScore");
-const sideDrawScore = document.getElementById("sideDrawScore");
 const lockedMessage = document.getElementById("lockedMessage");
 const leadLine = document.getElementById("leadLine");
 const historyList = document.getElementById("historyList");
@@ -22,23 +19,49 @@ const playedCount = document.getElementById("playedCount");
 const yearProgress = document.getElementById("yearProgress");
 const progressText = document.getElementById("progressText");
 const skipButton = document.getElementById("skipButton");
+
 const confirmModal = document.getElementById("confirmModal");
 const confirmTitle = document.getElementById("confirmTitle");
 const confirmText = document.getElementById("confirmText");
 const cancelConfirm = document.getElementById("cancelConfirm");
 const acceptConfirm = document.getElementById("acceptConfirm");
 
+const editScoreButton = document.getElementById("editScoreButton");
+const scoreModal = document.getElementById("scoreModal");
+const editLuke = document.getElementById("editLuke");
+const editTyler = document.getElementById("editTyler");
+const editDraw = document.getElementById("editDraw");
+const cancelScoreEdit = document.getElementById("cancelScoreEdit");
+const saveScoreEdit = document.getElementById("saveScoreEdit");
+
 let state = loadState();
 let pendingResult = null;
+
+function cloneDefaultState() {
+  return JSON.parse(JSON.stringify(defaultState));
+}
 
 function loadState() {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (!parsed || !parsed.scores || !Array.isArray(parsed.history)) return structuredClone(defaultState);
-    return parsed;
+    if (!parsed || !parsed.scores || !Array.isArray(parsed.history)) return cloneDefaultState();
+
+    return {
+      scores: {
+        luke: toSafeScore(parsed.scores.luke, 1),
+        tyler: toSafeScore(parsed.scores.tyler, 1),
+        draw: toSafeScore(parsed.scores.draw, 0)
+      },
+      history: parsed.history
+    };
   } catch {
-    return structuredClone(defaultState);
+    return cloneDefaultState();
   }
+}
+
+function toSafeScore(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? Math.floor(number) : fallback;
 }
 
 function saveState() {
@@ -53,7 +76,7 @@ function getUKDateParts(date = new Date()) {
     day: "2-digit"
   }).formatToParts(date);
 
-  const values = Object.fromEntries(parts.filter(p => p.type !== "literal").map(p => [p.type, p.value]));
+  const values = Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
   return { year: values.year, month: values.month, day: values.day };
 }
 
@@ -115,6 +138,29 @@ function closeConfirm() {
   confirmModal.hidden = true;
 }
 
+function openScoreEditor() {
+  editLuke.value = state.scores.luke;
+  editTyler.value = state.scores.tyler;
+  editDraw.value = state.scores.draw;
+  scoreModal.hidden = false;
+  setTimeout(() => editLuke.focus(), 0);
+}
+
+function closeScoreEditor() {
+  scoreModal.hidden = true;
+}
+
+function saveScoreOverride() {
+  const luke = toSafeScore(editLuke.value, state.scores.luke);
+  const tyler = toSafeScore(editTyler.value, state.scores.tyler);
+  const draw = toSafeScore(editDraw.value, state.scores.draw);
+
+  state.scores = { luke, tyler, draw };
+  saveState();
+  closeScoreEditor();
+  render();
+}
+
 function recordResult(result) {
   if (todaysEntry()) return;
 
@@ -137,9 +183,6 @@ function renderScoreboard() {
   lukeScore.textContent = state.scores.luke;
   tylerScore.textContent = state.scores.tyler;
   drawScore.textContent = state.scores.draw;
-  sideLukeScore.textContent = state.scores.luke;
-  sideTylerScore.textContent = state.scores.tyler;
-  sideDrawScore.textContent = state.scores.draw;
 
   const difference = Math.abs(state.scores.luke - state.scores.tyler);
   if (state.scores.luke === state.scores.tyler) {
@@ -209,8 +252,18 @@ confirmModal.addEventListener("click", event => {
   if (event.target === confirmModal) closeConfirm();
 });
 
+editScoreButton.addEventListener("click", openScoreEditor);
+cancelScoreEdit.addEventListener("click", closeScoreEditor);
+saveScoreEdit.addEventListener("click", saveScoreOverride);
+scoreModal.addEventListener("click", event => {
+  if (event.target === scoreModal) closeScoreEditor();
+});
+
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && !confirmModal.hidden) closeConfirm();
+  if (event.key === "Escape") {
+    if (!confirmModal.hidden) closeConfirm();
+    if (!scoreModal.hidden) closeScoreEditor();
+  }
 });
 
 render();
