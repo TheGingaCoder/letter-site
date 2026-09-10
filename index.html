@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#111217" />
+  <meta name="theme-color" content="#0d0f14" />
   <title>Luke vs Tyler — Daily RPS</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="ambient ambient-red"></div>
   <div class="ambient ambient-blue"></div>
+  <div class="ambient ambient-purple"></div>
 
   <main class="app">
     <header class="topbar">
       <div>
-        <p class="eyebrow">DAILY ROCK PAPER SCISSORS</p>
+        <p class="eyebrow">DAILY RPS</p>
         <h1>Luke <span>vs</span> Tyler</h1>
       </div>
       <button id="editScoreButton" class="quiet-button" type="button">Edit score</button>
@@ -26,6 +27,27 @@
       <article class="score-block tyler-score"><span>Tyler</span><strong id="tylerScore">1</strong></article>
     </section>
     <p id="leadLine" class="lead-line">Luke and Tyler are tied.</p>
+
+    <section id="todayCheck" class="today-check" hidden>
+      <div class="today-copy">
+        <span class="today-dot"></span>
+        <div>
+          <p class="eyebrow">TODAY'S CHECK</p>
+          <h2>Who won today?</h2>
+        </div>
+      </div>
+      <div class="today-actions">
+        <button class="quick-result luke" data-today-result="luke" type="button">Luke</button>
+        <button class="quick-result draw" data-today-result="draw" type="button">Draw</button>
+        <button class="quick-result tyler" data-today-result="tyler" type="button">Tyler</button>
+        <button class="quick-result skip" data-today-result="skip" type="button">Skip</button>
+      </div>
+    </section>
+
+    <section id="todayStatus" class="today-status" hidden>
+      <span id="todayStatusText">Today is already recorded.</span>
+      <button id="editTodayButton" class="text-button" type="button">Change</button>
+    </section>
 
     <section class="calendar-section">
       <div class="calendar-toolbar">
@@ -48,7 +70,7 @@
         <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
       </div>
       <div id="calendarGrid" class="calendar-grid" aria-label="Game calendar"></div>
-      <p class="calendar-help">Tap today or any earlier date to add or change its result. Future dates are unavailable.</p>
+      <p class="calendar-help">Playable days are Monday, Thursday and Friday. Tuesdays, Wednesdays and weekends are locked.</p>
     </section>
   </main>
 
@@ -72,7 +94,7 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="scoreModalTitle">
       <p class="eyebrow">MANUAL OVERRIDE</p>
       <h2 id="scoreModalTitle">Edit score</h2>
-      <p class="muted">Use this if the saved totals ever reset. Calendar edits after this will adjust from these totals.</p>
+      <p class="muted">Use this if the saved totals ever reset.</p>
       <div class="score-inputs">
         <label class="score-input luke-input">Luke<input id="editLuke" type="number" min="0" step="1" inputmode="numeric" /></label>
         <label class="score-input draw-input">Draw<input id="editDraw" type="number" min="0" step="1" inputmode="numeric" /></label>
