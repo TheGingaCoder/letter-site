@@ -1,5 +1,7 @@
-const STORAGE_KEY = "daily-rps-tracker-v1";
+const STORAGE_KEY = "daily-rps-tracker-v2";
 const UK_TIME_ZONE = "Europe/London";
+const DATA_FILE = "scores.json";
+const PLAYABLE_DAYS = new Set([1, 4, 5]); // Monday, Thursday, Friday (UTC weekday numbers)
 
 const defaultState = {
   scores: { luke: 1, tyler: 1, draw: 0 },
@@ -14,6 +16,10 @@ const monthTitle = document.getElementById("monthTitle");
 const calendarGrid = document.getElementById("calendarGrid");
 const prevMonth = document.getElementById("prevMonth");
 const nextMonth = document.getElementById("nextMonth");
+const todayCheck = document.getElementById("todayCheck");
+const todayStatus = document.getElementById("todayStatus");
+const todayStatusText = document.getElementById("todayStatusText");
+const editTodayButton = document.getElementById("editTodayButton");
 
 const dayModal = document.getElementById("dayModal");
 const dayModalTitle = document.getElementById("dayModalTitle");
@@ -29,8 +35,9 @@ const editDraw = document.getElementById("editDraw");
 const cancelScoreEdit = document.getElementById("cancelScoreEdit");
 const saveScoreEdit = document.getElementById("saveScoreEdit");
 
-let state = loadState();
+let state = cloneDefaultState();
 let selectedDateKey = null;
+let initialised = false;
 
 const todayParts = getUKDateParts();
 let visibleYear = Number(todayParts.year);
@@ -45,18 +52,32 @@ function toSafeScore(value, fallback = 0) {
   return Number.isFinite(number) && number >= 0 ? Math.floor(number) : fallback;
 }
 
-function loadState() {
+function normaliseState(raw) {
+  if (!raw || !raw.scores || !Array.isArray(raw.history)) return cloneDefaultState();
+  return {
+    scores: {
+      luke: toSafeScore(raw.scores.luke, 1),
+      tyler: toSafeScore(raw.scores.tyler, 1),
+      draw: toSafeScore(raw.scores.draw, 0)
+    },
+    history: raw.history.filter(item => item && item.date && item.result)
+  };
+}
+
+function loadLocalState() {
   try {
-    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (!parsed || !parsed.scores || !Array.isArray(parsed.history)) return cloneDefaultState();
-    return {
-      scores: {
-        luke: toSafeScore(parsed.scores.luke, 1),
-        tyler: toSafeScore(parsed.scores.tyler, 1),
-        draw: toSafeScore(parsed.scores.draw, 0)
-      },
-      history: parsed.history.filter(item => item && item.date && item.result)
-    };
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? normaliseState(JSON.parse(raw)) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function loadGithubSeed() {
+  try {
+    const response = await fetch(`${DATA_FILE}?v=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error("Data file unavailable");
+    return normaliseState(await response.json());
   } catch {
     return cloneDefaultState();
   }
@@ -86,20 +107,31 @@ function makeDateKey(year, monthIndex, day) {
   return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
+function dateKeyToUTC(dateKey) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day, 12));
+}
+
+function isPlayableKey(dateKey) {
+  return PLAYABLE_DAYS.has(dateKeyToUTC(dateKey).getUTCDay());
+}
+
 function isFutureKey(dateKey) {
   return dateKey > getTodayKey();
 }
 
+function isEditableKey(dateKey) {
+  return !isFutureKey(dateKey) && isPlayableKey(dateKey);
+}
+
 function formatDateKey(dateKey) {
-  const [year, month, day] = dateKey.split("-").map(Number);
-  const date = new Date(Date.UTC(year, month - 1, day, 12));
   return new Intl.DateTimeFormat("en-GB", {
     timeZone: "UTC",
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric"
-  }).format(date);
+  }).format(dateKeyToUTC(dateKey));
 }
 
 function getEntry(dateKey) {
@@ -121,8 +153,28 @@ function adjustScoreForResult(result, amount) {
   if (result === "draw") state.scores.draw = Math.max(0, state.scores.draw + amount);
 }
 
-function setDayResult(dateKey, newResult) {
-  if (isFutureKey(dateKey)) return;
+function animateScore(result) {
+  const map = { luke: lukeScore, tyler: tylerScore, draw: drawScore };
+  const element = map[result];
+  if (!element) return;
+  element.classList.remove("score-pop");
+  void element.offsetWidth;
+  element.classList.add("score-pop");
+}
+
+function burstFromElement(element) {
+  if (!element) return;
+  const rect = element.getBoundingClientRect();
+  const burst = document.createElement("span");
+  burst.className = "tap-burst";
+  burst.style.left = `${rect.left + rect.width / 2}px`;
+  burst.style.top = `${rect.top + rect.height / 2}px`;
+  document.body.appendChild(burst);
+  setTimeout(() => burst.remove(), 700);
+}
+
+function setDayResult(dateKey, newResult, sourceElement = null) {
+  if (!isEditableKey(dateKey)) return;
 
   const existingIndex = state.history.findIndex(item => item.date === dateKey);
   const existing = existingIndex >= 0 ? state.history[existingIndex] : null;
@@ -145,6 +197,8 @@ function setDayResult(dateKey, newResult) {
   state.history.sort((a, b) => b.date.localeCompare(a.date));
   saveState();
   closeDayEditor();
+  if (newResult) animateScore(newResult);
+  burstFromElement(sourceElement);
   render();
 }
 
@@ -160,6 +214,23 @@ function renderScoreboard() {
     leadLine.textContent = `Luke leads by ${difference}.`;
   } else {
     leadLine.textContent = `Tyler leads by ${difference}.`;
+  }
+}
+
+function renderTodayCheck() {
+  const todayKey = getTodayKey();
+  const playable = isPlayableKey(todayKey);
+  const entry = getEntry(todayKey);
+
+  todayCheck.hidden = !playable || Boolean(entry);
+  todayStatus.hidden = playable && !entry;
+
+  if (!playable) {
+    todayStatusText.textContent = "No game scheduled today.";
+    editTodayButton.hidden = true;
+  } else if (entry) {
+    todayStatusText.textContent = `Today: ${resultLabel(entry.result)}`;
+    editTodayButton.hidden = false;
   }
 }
 
@@ -185,15 +256,19 @@ function renderCalendar() {
     const dateKey = makeDateKey(visibleYear, visibleMonth, day);
     const entry = getEntry(dateKey);
     const future = isFutureKey(dateKey);
+    const playable = isPlayableKey(dateKey);
+    const disabled = future || !playable;
     const classes = ["calendar-day"];
     if (entry) classes.push(entry.result);
     if (future) classes.push("future");
+    if (!playable) classes.push("closed-day");
     if (dateKey === todayKey) classes.push("today");
 
+    const reason = future ? "future date" : (!playable ? "not a playing day" : "");
     cells.push(`
-      <button class="${classes.join(" ")}" type="button" data-date="${dateKey}" ${future ? "disabled" : ""} aria-label="${formatDateKey(dateKey)}${entry ? `, ${resultLabel(entry.result)}` : ""}">
+      <button class="${classes.join(" ")}" type="button" data-date="${dateKey}" ${disabled ? "disabled" : ""} aria-label="${formatDateKey(dateKey)}${entry ? `, ${resultLabel(entry.result)}` : reason ? `, ${reason}` : ""}">
         <span class="day-number">${day}</span>
-        ${entry ? `<span class="day-result">${resultLabel(entry.result)}</span>` : ""}
+        ${entry ? `<span class="day-result">${resultLabel(entry.result)}</span>` : !playable ? `<span class="day-result closed-label">Off</span>` : ""}
       </button>
     `);
   }
@@ -206,7 +281,7 @@ function renderCalendar() {
 }
 
 function openDayEditor(dateKey) {
-  if (isFutureKey(dateKey)) return;
+  if (!isEditableKey(dateKey)) return;
   selectedDateKey = dateKey;
   const entry = getEntry(dateKey);
   dayModalTitle.textContent = entry ? "Change result" : "Choose a result";
@@ -239,12 +314,22 @@ function saveScoreOverride() {
   };
   saveState();
   closeScoreEditor();
-  renderScoreboard();
+  render();
 }
 
 function render() {
   renderScoreboard();
+  renderTodayCheck();
   renderCalendar();
+}
+
+async function initialise() {
+  if (initialised) return;
+  initialised = true;
+  const local = loadLocalState();
+  state = local || await loadGithubSeed();
+  saveState();
+  render();
 }
 
 prevMonth.addEventListener("click", () => {
@@ -276,18 +361,23 @@ calendarGrid.addEventListener("click", event => {
 
 document.querySelectorAll("[data-day-result]").forEach(button => {
   button.addEventListener("click", () => {
-    if (selectedDateKey) setDayResult(selectedDateKey, button.dataset.dayResult);
+    if (selectedDateKey) setDayResult(selectedDateKey, button.dataset.dayResult, button);
   });
 });
 
+document.querySelectorAll("[data-today-result]").forEach(button => {
+  button.addEventListener("click", () => setDayResult(getTodayKey(), button.dataset.todayResult, button));
+});
+
 clearDayButton.addEventListener("click", () => {
-  if (selectedDateKey) setDayResult(selectedDateKey, null);
+  if (selectedDateKey) setDayResult(selectedDateKey, null, clearDayButton);
 });
 closeDayModal.addEventListener("click", closeDayEditor);
 dayModal.addEventListener("click", event => {
   if (event.target === dayModal) closeDayEditor();
 });
 
+editTodayButton.addEventListener("click", () => openDayEditor(getTodayKey()));
 editScoreButton.addEventListener("click", openScoreEditor);
 cancelScoreEdit.addEventListener("click", closeScoreEditor);
 saveScoreEdit.addEventListener("click", saveScoreOverride);
@@ -302,4 +392,4 @@ document.addEventListener("keydown", event => {
   }
 });
 
-render();
+initialise();
