@@ -14,89 +14,57 @@
   <main class="app">
     <header class="topbar">
       <div>
-        <p class="eyebrow">DAILY RPS</p>
+        <p class="eyebrow">DAILY ROCK PAPER SCISSORS</p>
         <h1>Luke <span>vs</span> Tyler</h1>
       </div>
-      <div class="top-actions">
-        <span id="dateChip" class="date-chip">Today</span>
-        <button id="editScoreButton" class="ghost-button" type="button">Edit score</button>
-      </div>
+      <button id="editScoreButton" class="quiet-button" type="button">Edit score</button>
     </header>
 
-    <section class="score-strip" aria-label="Scoreboard">
-      <article class="score-block luke-score">
-        <span>Luke</span>
-        <strong id="lukeScore">1</strong>
-      </article>
-      <article class="score-block draw-score">
-        <span>Draw</span>
-        <strong id="drawScore">0</strong>
-      </article>
-      <article class="score-block tyler-score">
-        <span>Tyler</span>
-        <strong id="tylerScore">1</strong>
-      </article>
+    <section class="score-strip" aria-label="Current score">
+      <article class="score-block luke-score"><span>Luke</span><strong id="lukeScore">1</strong></article>
+      <article class="score-block draw-score"><span>Draw</span><strong id="drawScore">0</strong></article>
+      <article class="score-block tyler-score"><span>Tyler</span><strong id="tylerScore">1</strong></article>
     </section>
+    <p id="leadLine" class="lead-line">Luke and Tyler are tied.</p>
 
-    <p class="lead-line" id="leadLine">Luke and Tyler are tied.</p>
-
-    <section id="entryView" class="daily-card" hidden>
-      <div class="daily-heading">
-        <div>
-          <p class="eyebrow">TODAY</p>
-          <h2>Who won?</h2>
+    <section class="calendar-section">
+      <div class="calendar-toolbar">
+        <button id="prevMonth" class="nav-button" type="button" aria-label="Previous month">←</button>
+        <div class="month-title-wrap">
+          <p class="eyebrow">CALENDAR</p>
+          <h2 id="monthTitle">September 2026</h2>
         </div>
-        <span class="open-status"><i></i> Open</span>
+        <button id="nextMonth" class="nav-button" type="button" aria-label="Next month">→</button>
       </div>
 
-      <div class="result-grid">
-        <button class="result-button luke" data-result="luke" type="button">
-          <span class="result-letter">L</span>
-          <span><strong>Luke Won</strong><small>+1 Luke</small></span>
-        </button>
-        <button class="result-button draw" data-result="draw" type="button">
-          <span class="result-letter">—</span>
-          <span><strong>Draw</strong><small>+1 Draw</small></span>
-        </button>
-        <button class="result-button tyler" data-result="tyler" type="button">
-          <span class="result-letter">T</span>
-          <span><strong>Tyler Won</strong><small>+1 Tyler</small></span>
-        </button>
+      <div class="legend" aria-label="Result colours">
+        <span class="legend-item luke"><i></i>Luke</span>
+        <span class="legend-item tyler"><i></i>Tyler</span>
+        <span class="legend-item draw"><i></i>Draw</span>
+        <span class="legend-item skip"><i></i>Skipped</span>
       </div>
 
-      <button id="skipButton" class="skip-button" type="button">Skip Day</button>
-    </section>
-
-    <section id="lockedView" class="daily-card locked-card" hidden>
-      <p class="eyebrow">TODAY</p>
-      <h2 id="lockedMessage">Result recorded</h2>
-      <div class="locked-status">✓ Locked until tomorrow</div>
-    </section>
-
-    <section class="history-section">
-      <div class="history-heading">
-        <div>
-          <p class="eyebrow">THIS YEAR</p>
-          <h2>History</h2>
-        </div>
-        <div class="played-count"><strong id="playedCount">2</strong><span>games</span></div>
+      <div class="weekday-row" aria-hidden="true">
+        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
       </div>
-
-      <div class="progress-track"><div id="yearProgress" class="progress-fill"></div></div>
-      <p id="progressText" class="progress-text">Tracking your year one day at a time.</p>
-      <div id="historyList" class="history-list"></div>
+      <div id="calendarGrid" class="calendar-grid" aria-label="Game calendar"></div>
+      <p class="calendar-help">Tap today or any earlier date to add or change its result. Future dates are unavailable.</p>
     </section>
   </main>
 
-  <div id="confirmModal" class="modal-backdrop" hidden>
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
-      <p class="eyebrow">CONFIRM TODAY</p>
-      <h2 id="confirmTitle">Record result?</h2>
-      <p id="confirmText" class="muted">This cannot be changed again today.</p>
-      <div class="modal-actions">
-        <button id="cancelConfirm" class="secondary-button" type="button">Cancel</button>
-        <button id="acceptConfirm" class="primary-button" type="button">Confirm</button>
+  <div id="dayModal" class="modal-backdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="dayModalTitle">
+      <p class="eyebrow">EDIT DAY</p>
+      <h2 id="dayModalTitle">Choose a result</h2>
+      <p id="dayModalDate" class="muted"></p>
+      <div class="day-options">
+        <button class="day-option luke" data-day-result="luke" type="button">Luke won</button>
+        <button class="day-option tyler" data-day-result="tyler" type="button">Tyler won</button>
+        <button class="day-option draw" data-day-result="draw" type="button">Draw</button>
+        <button class="day-option skip" data-day-result="skip" type="button">Skip day</button>
       </div>
+      <button id="clearDayButton" class="clear-button" type="button">Clear this day</button>
+      <button id="closeDayModal" class="quiet-button modal-close" type="button">Cancel</button>
     </div>
   </div>
 
@@ -104,16 +72,14 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="scoreModalTitle">
       <p class="eyebrow">MANUAL OVERRIDE</p>
       <h2 id="scoreModalTitle">Edit score</h2>
-      <p class="muted">Use this to restore the totals if this browser ever loses its saved data.</p>
-
+      <p class="muted">Use this if the saved totals ever reset. Calendar edits after this will adjust from these totals.</p>
       <div class="score-inputs">
         <label class="score-input luke-input">Luke<input id="editLuke" type="number" min="0" step="1" inputmode="numeric" /></label>
         <label class="score-input draw-input">Draw<input id="editDraw" type="number" min="0" step="1" inputmode="numeric" /></label>
         <label class="score-input tyler-input">Tyler<input id="editTyler" type="number" min="0" step="1" inputmode="numeric" /></label>
       </div>
-
       <div class="modal-actions">
-        <button id="cancelScoreEdit" class="secondary-button" type="button">Cancel</button>
+        <button id="cancelScoreEdit" class="quiet-button" type="button">Cancel</button>
         <button id="saveScoreEdit" class="primary-button" type="button">Save score</button>
       </div>
     </div>
