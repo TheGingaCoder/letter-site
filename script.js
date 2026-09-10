@@ -6,25 +6,20 @@ const defaultState = {
   history: []
 };
 
-const entryView = document.getElementById("entryView");
-const lockedView = document.getElementById("lockedView");
-const dateChip = document.getElementById("dateChip");
 const lukeScore = document.getElementById("lukeScore");
 const tylerScore = document.getElementById("tylerScore");
 const drawScore = document.getElementById("drawScore");
-const lockedMessage = document.getElementById("lockedMessage");
 const leadLine = document.getElementById("leadLine");
-const historyList = document.getElementById("historyList");
-const playedCount = document.getElementById("playedCount");
-const yearProgress = document.getElementById("yearProgress");
-const progressText = document.getElementById("progressText");
-const skipButton = document.getElementById("skipButton");
+const monthTitle = document.getElementById("monthTitle");
+const calendarGrid = document.getElementById("calendarGrid");
+const prevMonth = document.getElementById("prevMonth");
+const nextMonth = document.getElementById("nextMonth");
 
-const confirmModal = document.getElementById("confirmModal");
-const confirmTitle = document.getElementById("confirmTitle");
-const confirmText = document.getElementById("confirmText");
-const cancelConfirm = document.getElementById("cancelConfirm");
-const acceptConfirm = document.getElementById("acceptConfirm");
+const dayModal = document.getElementById("dayModal");
+const dayModalTitle = document.getElementById("dayModalTitle");
+const dayModalDate = document.getElementById("dayModalDate");
+const clearDayButton = document.getElementById("clearDayButton");
+const closeDayModal = document.getElementById("closeDayModal");
 
 const editScoreButton = document.getElementById("editScoreButton");
 const scoreModal = document.getElementById("scoreModal");
@@ -35,33 +30,36 @@ const cancelScoreEdit = document.getElementById("cancelScoreEdit");
 const saveScoreEdit = document.getElementById("saveScoreEdit");
 
 let state = loadState();
-let pendingResult = null;
+let selectedDateKey = null;
+
+const todayParts = getUKDateParts();
+let visibleYear = Number(todayParts.year);
+let visibleMonth = Number(todayParts.month) - 1;
 
 function cloneDefaultState() {
   return JSON.parse(JSON.stringify(defaultState));
+}
+
+function toSafeScore(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? Math.floor(number) : fallback;
 }
 
 function loadState() {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!parsed || !parsed.scores || !Array.isArray(parsed.history)) return cloneDefaultState();
-
     return {
       scores: {
         luke: toSafeScore(parsed.scores.luke, 1),
         tyler: toSafeScore(parsed.scores.tyler, 1),
         draw: toSafeScore(parsed.scores.draw, 0)
       },
-      history: parsed.history
+      history: parsed.history.filter(item => item && item.date && item.result)
     };
   } catch {
     return cloneDefaultState();
   }
-}
-
-function toSafeScore(value, fallback = 0) {
-  const number = Number(value);
-  return Number.isFinite(number) && number >= 0 ? Math.floor(number) : fallback;
 }
 
 function saveState() {
@@ -75,7 +73,6 @@ function getUKDateParts(date = new Date()) {
     month: "2-digit",
     day: "2-digit"
   }).formatToParts(date);
-
   const values = Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
   return { year: values.year, month: values.month, day: values.day };
 }
@@ -85,97 +82,69 @@ function getTodayKey() {
   return `${year}-${month}-${day}`;
 }
 
-function formatToday() {
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: UK_TIME_ZONE,
-    weekday: "short",
-    day: "numeric",
-    month: "short"
-  }).format(new Date());
+function makeDateKey(year, monthIndex, day) {
+  return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-function formatHistoryDate(dateKey) {
+function isFutureKey(dateKey) {
+  return dateKey > getTodayKey();
+}
+
+function formatDateKey(dateKey) {
   const [year, month, day] = dateKey.split("-").map(Number);
   const date = new Date(Date.UTC(year, month - 1, day, 12));
   return new Intl.DateTimeFormat("en-GB", {
     timeZone: "UTC",
-    weekday: "short",
+    weekday: "long",
     day: "numeric",
-    month: "short",
+    month: "long",
     year: "numeric"
   }).format(date);
 }
 
-function todaysEntry() {
-  return state.history.find(item => item.date === getTodayKey());
+function getEntry(dateKey) {
+  return state.history.find(item => item.date === dateKey) || null;
 }
 
-function getResultLabel(result) {
+function resultLabel(result) {
   return {
     luke: "Luke won",
     tyler: "Tyler won",
     draw: "Draw",
-    skip: "Day skipped"
-  }[result];
+    skip: "Skipped"
+  }[result] || "";
 }
 
-function openConfirm(result) {
-  pendingResult = result;
-  const labels = {
-    luke: ["Luke won today?", "This adds one win to Luke and locks today."],
-    tyler: ["Tyler won today?", "This adds one win to Tyler and locks today."],
-    draw: ["Record a draw?", "This adds one draw and locks today."],
-    skip: ["Skip today?", "No score will change, but today will be locked as skipped."]
-  };
-
-  confirmTitle.textContent = labels[result][0];
-  confirmText.textContent = labels[result][1];
-  confirmModal.hidden = false;
+function adjustScoreForResult(result, amount) {
+  if (result === "luke") state.scores.luke = Math.max(0, state.scores.luke + amount);
+  if (result === "tyler") state.scores.tyler = Math.max(0, state.scores.tyler + amount);
+  if (result === "draw") state.scores.draw = Math.max(0, state.scores.draw + amount);
 }
 
-function closeConfirm() {
-  pendingResult = null;
-  confirmModal.hidden = true;
-}
+function setDayResult(dateKey, newResult) {
+  if (isFutureKey(dateKey)) return;
 
-function openScoreEditor() {
-  editLuke.value = state.scores.luke;
-  editTyler.value = state.scores.tyler;
-  editDraw.value = state.scores.draw;
-  scoreModal.hidden = false;
-  setTimeout(() => editLuke.focus(), 0);
-}
+  const existingIndex = state.history.findIndex(item => item.date === dateKey);
+  const existing = existingIndex >= 0 ? state.history[existingIndex] : null;
 
-function closeScoreEditor() {
-  scoreModal.hidden = true;
-}
+  if (existing) adjustScoreForResult(existing.result, -1);
 
-function saveScoreOverride() {
-  const luke = toSafeScore(editLuke.value, state.scores.luke);
-  const tyler = toSafeScore(editTyler.value, state.scores.tyler);
-  const draw = toSafeScore(editDraw.value, state.scores.draw);
+  if (newResult) {
+    adjustScoreForResult(newResult, 1);
+    const record = {
+      date: dateKey,
+      result: newResult,
+      recordedAt: new Date().toISOString()
+    };
+    if (existingIndex >= 0) state.history[existingIndex] = record;
+    else state.history.push(record);
+  } else if (existingIndex >= 0) {
+    state.history.splice(existingIndex, 1);
+  }
 
-  state.scores = { luke, tyler, draw };
+  state.history.sort((a, b) => b.date.localeCompare(a.date));
   saveState();
-  closeScoreEditor();
-  render();
-}
-
-function recordResult(result) {
-  if (todaysEntry()) return;
-
-  if (result === "luke") state.scores.luke += 1;
-  if (result === "tyler") state.scores.tyler += 1;
-  if (result === "draw") state.scores.draw += 1;
-
-  state.history.unshift({
-    date: getTodayKey(),
-    result,
-    recordedAt: new Date().toISOString()
-  });
-
-  saveState();
-  closeConfirm();
+  closeDayEditor();
   render();
 }
 
@@ -194,62 +163,129 @@ function renderScoreboard() {
   }
 }
 
-function renderHistory() {
-  const playedGames = state.scores.luke + state.scores.tyler + state.scores.draw;
-  playedCount.textContent = playedGames;
+function renderCalendar() {
+  const monthDate = new Date(Date.UTC(visibleYear, visibleMonth, 1, 12));
+  monthTitle.textContent = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "UTC",
+    month: "long",
+    year: "numeric"
+  }).format(monthDate);
 
-  if (!state.history.length) {
-    historyList.innerHTML = `<div class="empty-history">New daily results will appear here.</div>`;
-  } else {
-    historyList.innerHTML = state.history.slice(0, 12).map(item => `
-      <div class="history-row">
-        <span class="history-date">${formatHistoryDate(item.date)}</span>
-        <span class="history-result ${item.result}">${getResultLabel(item.result)}</span>
-      </div>
-    `).join("");
+  const firstDaySundayBased = new Date(Date.UTC(visibleYear, visibleMonth, 1)).getUTCDay();
+  const leadingBlankDays = (firstDaySundayBased + 6) % 7;
+  const daysInMonth = new Date(Date.UTC(visibleYear, visibleMonth + 1, 0)).getUTCDate();
+  const todayKey = getTodayKey();
+
+  const cells = [];
+  for (let i = 0; i < leadingBlankDays; i += 1) {
+    cells.push('<div class="calendar-day empty" aria-hidden="true"></div>');
   }
 
-  const { year } = getUKDateParts();
-  const start = Date.UTC(Number(year), 0, 1);
-  const end = Date.UTC(Number(year) + 1, 0, 1);
-  const todayParts = getUKDateParts();
-  const current = Date.UTC(Number(todayParts.year), Number(todayParts.month) - 1, Number(todayParts.day));
-  const dayNumber = Math.floor((current - start) / 86400000) + 1;
-  const daysInYear = Math.round((end - start) / 86400000);
-  const percentage = Math.min(100, (dayNumber / daysInYear) * 100);
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const dateKey = makeDateKey(visibleYear, visibleMonth, day);
+    const entry = getEntry(dateKey);
+    const future = isFutureKey(dateKey);
+    const classes = ["calendar-day"];
+    if (entry) classes.push(entry.result);
+    if (future) classes.push("future");
+    if (dateKey === todayKey) classes.push("today");
 
-  yearProgress.style.width = `${percentage}%`;
-  progressText.textContent = `Day ${dayNumber} of ${daysInYear} • ${state.history.length} daily ${state.history.length === 1 ? "entry" : "entries"} recorded on this device.`;
+    cells.push(`
+      <button class="${classes.join(" ")}" type="button" data-date="${dateKey}" ${future ? "disabled" : ""} aria-label="${formatDateKey(dateKey)}${entry ? `, ${resultLabel(entry.result)}` : ""}">
+        <span class="day-number">${day}</span>
+        ${entry ? `<span class="day-result">${resultLabel(entry.result)}</span>` : ""}
+      </button>
+    `);
+  }
+
+  calendarGrid.innerHTML = cells.join("");
+
+  const currentMonthKey = `${todayParts.year}-${todayParts.month}`;
+  const visibleMonthKey = `${visibleYear}-${String(visibleMonth + 1).padStart(2, "0")}`;
+  nextMonth.disabled = visibleMonthKey >= currentMonthKey;
+}
+
+function openDayEditor(dateKey) {
+  if (isFutureKey(dateKey)) return;
+  selectedDateKey = dateKey;
+  const entry = getEntry(dateKey);
+  dayModalTitle.textContent = entry ? "Change result" : "Choose a result";
+  dayModalDate.textContent = formatDateKey(dateKey);
+  clearDayButton.disabled = !entry;
+  dayModal.hidden = false;
+}
+
+function closeDayEditor() {
+  selectedDateKey = null;
+  dayModal.hidden = true;
+}
+
+function openScoreEditor() {
+  editLuke.value = state.scores.luke;
+  editTyler.value = state.scores.tyler;
+  editDraw.value = state.scores.draw;
+  scoreModal.hidden = false;
+}
+
+function closeScoreEditor() {
+  scoreModal.hidden = true;
+}
+
+function saveScoreOverride() {
+  state.scores = {
+    luke: toSafeScore(editLuke.value, state.scores.luke),
+    tyler: toSafeScore(editTyler.value, state.scores.tyler),
+    draw: toSafeScore(editDraw.value, state.scores.draw)
+  };
+  saveState();
+  closeScoreEditor();
+  renderScoreboard();
 }
 
 function render() {
-  dateChip.textContent = formatToday();
-  const today = todaysEntry();
-
-  if (today) {
-    entryView.hidden = true;
-    lockedView.hidden = false;
-    lockedMessage.textContent = today.result === "skip"
-      ? "No game recorded today"
-      : `${getResultLabel(today.result)} today`;
-  } else {
-    entryView.hidden = false;
-    lockedView.hidden = true;
-  }
-
   renderScoreboard();
-  renderHistory();
+  renderCalendar();
 }
 
-document.querySelectorAll("[data-result]").forEach(button => {
-  button.addEventListener("click", () => openConfirm(button.dataset.result));
+prevMonth.addEventListener("click", () => {
+  visibleMonth -= 1;
+  if (visibleMonth < 0) {
+    visibleMonth = 11;
+    visibleYear -= 1;
+  }
+  renderCalendar();
 });
 
-skipButton.addEventListener("click", () => openConfirm("skip"));
-cancelConfirm.addEventListener("click", closeConfirm);
-acceptConfirm.addEventListener("click", () => pendingResult && recordResult(pendingResult));
-confirmModal.addEventListener("click", event => {
-  if (event.target === confirmModal) closeConfirm();
+nextMonth.addEventListener("click", () => {
+  const currentYear = Number(todayParts.year);
+  const currentMonth = Number(todayParts.month) - 1;
+  if (visibleYear > currentYear || (visibleYear === currentYear && visibleMonth >= currentMonth)) return;
+  visibleMonth += 1;
+  if (visibleMonth > 11) {
+    visibleMonth = 0;
+    visibleYear += 1;
+  }
+  renderCalendar();
+});
+
+calendarGrid.addEventListener("click", event => {
+  const button = event.target.closest("[data-date]");
+  if (!button || button.disabled) return;
+  openDayEditor(button.dataset.date);
+});
+
+document.querySelectorAll("[data-day-result]").forEach(button => {
+  button.addEventListener("click", () => {
+    if (selectedDateKey) setDayResult(selectedDateKey, button.dataset.dayResult);
+  });
+});
+
+clearDayButton.addEventListener("click", () => {
+  if (selectedDateKey) setDayResult(selectedDateKey, null);
+});
+closeDayModal.addEventListener("click", closeDayEditor);
+dayModal.addEventListener("click", event => {
+  if (event.target === dayModal) closeDayEditor();
 });
 
 editScoreButton.addEventListener("click", openScoreEditor);
@@ -261,7 +297,7 @@ scoreModal.addEventListener("click", event => {
 
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") {
-    if (!confirmModal.hidden) closeConfirm();
+    if (!dayModal.hidden) closeDayEditor();
     if (!scoreModal.hidden) closeScoreEditor();
   }
 });
