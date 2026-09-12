@@ -11,6 +11,9 @@ const defaultState = {
 const lukeScore = document.getElementById("lukeScore");
 const tylerScore = document.getElementById("tylerScore");
 const drawScore = document.getElementById("drawScore");
+const lukeProgress = document.getElementById("lukeProgress");
+const tylerProgress = document.getElementById("tylerProgress");
+const drawProgress = document.getElementById("drawProgress");
 const leadLine = document.getElementById("leadLine");
 const monthTitle = document.getElementById("monthTitle");
 const calendarGrid = document.getElementById("calendarGrid");
@@ -203,14 +206,25 @@ function setDayResult(dateKey, newResult, sourceElement = null) {
 }
 
 function renderScoreboard() {
-  lukeScore.textContent = state.scores.luke;
-  tylerScore.textContent = state.scores.tyler;
-  drawScore.textContent = state.scores.draw;
+  const luke = state.scores.luke;
+  const tyler = state.scores.tyler;
+  const draw = state.scores.draw;
 
-  const difference = Math.abs(state.scores.luke - state.scores.tyler);
-  if (state.scores.luke === state.scores.tyler) {
+  lukeScore.textContent = luke;
+  tylerScore.textContent = tyler;
+  drawScore.textContent = draw;
+
+  const highest = Math.max(luke, tyler, draw);
+  const percentage = value => highest === 0 ? 0 : (value / highest) * 100;
+
+  lukeProgress.style.width = `${percentage(luke)}%`;
+  tylerProgress.style.width = `${percentage(tyler)}%`;
+  drawProgress.style.width = `${percentage(draw)}%`;
+
+  const difference = Math.abs(luke - tyler);
+  if (luke === tyler) {
     leadLine.textContent = "Luke and Tyler are tied.";
-  } else if (state.scores.luke > state.scores.tyler) {
+  } else if (luke > tyler) {
     leadLine.textContent = `Luke leads by ${difference}.`;
   } else {
     leadLine.textContent = `Tyler leads by ${difference}.`;
