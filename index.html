@@ -6,6 +6,17 @@
   <meta name="theme-color" content="#0d0f14" />
   <title>Luke vs Tyler — Daily RPS</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .score-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;min-height:72px}
+    .score-top strong{font-size:clamp(3.2rem,10vw,5.3rem);line-height:.78;letter-spacing:-.08em}
+    .score-progress{height:8px;margin-top:16px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.07)}
+    .score-progress-fill{height:100%;width:0;border-radius:inherit;transition:width .65s cubic-bezier(.2,.8,.2,1)}
+    .luke-score .score-progress-fill{background:linear-gradient(90deg,#ff4c67,#ff7c8b)}
+    .draw-score .score-progress-fill{background:linear-gradient(90deg,#8f929b,#cacbd1)}
+    .tyler-score .score-progress-fill{background:linear-gradient(90deg,#527fff,#86a9ff)}
+    .score-strip{grid-template-columns:repeat(3,minmax(0,1fr))}
+    @media(max-width:620px){.score-strip{grid-template-columns:repeat(3,minmax(0,1fr))}.draw-score{grid-column:auto}.score-block{min-height:118px}.score-top{min-height:60px}.score-top strong{font-size:clamp(2.6rem,14vw,3.8rem)}}
+  </style>
 </head>
 <body>
   <div class="ambient ambient-red"></div>
