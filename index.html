@@ -22,9 +22,18 @@
     </header>
 
     <section class="score-strip" aria-label="Current score">
-      <article class="score-block luke-score"><span>Luke</span><strong id="lukeScore">1</strong></article>
-      <article class="score-block draw-score"><span>Draw</span><strong id="drawScore">0</strong></article>
-      <article class="score-block tyler-score"><span>Tyler</span><strong id="tylerScore">1</strong></article>
+      <article class="score-block luke-score">
+        <div class="score-top"><span>Luke</span><strong id="lukeScore">1</strong></div>
+        <div class="score-progress" aria-hidden="true"><div id="lukeProgress" class="score-progress-fill"></div></div>
+      </article>
+      <article class="score-block draw-score">
+        <div class="score-top"><span>Draw</span><strong id="drawScore">0</strong></div>
+        <div class="score-progress" aria-hidden="true"><div id="drawProgress" class="score-progress-fill"></div></div>
+      </article>
+      <article class="score-block tyler-score">
+        <div class="score-top"><span>Tyler</span><strong id="tylerScore">1</strong></div>
+        <div class="score-progress" aria-hidden="true"><div id="tylerProgress" class="score-progress-fill"></div></div>
+      </article>
     </section>
     <p id="leadLine" class="lead-line">Luke and Tyler are tied.</p>
 
